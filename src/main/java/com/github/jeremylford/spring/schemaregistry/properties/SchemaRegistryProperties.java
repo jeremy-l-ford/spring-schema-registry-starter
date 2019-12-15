@@ -284,7 +284,7 @@ public class SchemaRegistryProperties {
         /**
          * Zookeeper session timeout
          */
-        private int zookeeperSessionTimeout = 500;
+        private int zookeeperSessionTimeoutMillis = 30000;
 
         /**
          * The durable single partition topic that actsas the durable log for the data
@@ -299,7 +299,7 @@ public class SchemaRegistryProperties {
         /**
          * The timeout for an operation on the Kafka store
          */
-        private Integer timeout;
+        private int timeout = 500;
 
         /**
          * The timeout for initialization of the Kafka store, including creation of the Kafka topic that stores schema data.
@@ -330,12 +330,12 @@ public class SchemaRegistryProperties {
             this.groupId = groupId;
         }
 
-        public int getZookeeperSessionTimeout() {
-            return zookeeperSessionTimeout;
+        public int getZookeeperSessionTimeoutMillis() {
+            return zookeeperSessionTimeoutMillis;
         }
 
-        public void setZookeeperSessionTimeout(int zookeeperSessionTimeout) {
-            this.zookeeperSessionTimeout = zookeeperSessionTimeout;
+        public void setZookeeperSessionTimeoutMillis(int zookeeperSessionTimeoutMillis) {
+            this.zookeeperSessionTimeoutMillis = zookeeperSessionTimeoutMillis;
         }
 
         public String getTopic() {
@@ -354,11 +354,11 @@ public class SchemaRegistryProperties {
             this.topicReplicationFactor = topicReplicationFactor;
         }
 
-        public Integer getTimeout() {
+        public int getTimeout() {
             return timeout;
         }
 
-        public void setTimeout(Integer timeout) {
+        public void setTimeout(int timeout) {
             this.timeout = timeout;
         }
 
@@ -374,10 +374,11 @@ public class SchemaRegistryProperties {
             Properties properties = new Properties();
             putString(properties, SchemaRegistryConfig.KAFKASTORE_CONNECTION_URL_CONFIG, connectionUrl);
             putArray(properties, SchemaRegistryConfig.KAFKASTORE_BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-            putInteger(properties, SchemaRegistryConfig.KAFKASTORE_ZK_SESSION_TIMEOUT_MS_CONFIG, zookeeperSessionTimeout);
+            putInteger(properties, SchemaRegistryConfig.KAFKASTORE_ZK_SESSION_TIMEOUT_MS_CONFIG, zookeeperSessionTimeoutMillis);
             putString(properties, SchemaRegistryConfig.KAFKASTORE_TOPIC_CONFIG, topic);
             putInteger(properties, SchemaRegistryConfig.KAFKASTORE_TOPIC_REPLICATION_FACTOR_CONFIG, topicReplicationFactor);
             putInteger(properties, SchemaRegistryConfig.KAFKASTORE_INIT_TIMEOUT_CONFIG, initTimeout);
+            putInteger(properties, SchemaRegistryConfig.KAFKASTORE_TIMEOUT_CONFIG, timeout);
 
             return properties;
         }
