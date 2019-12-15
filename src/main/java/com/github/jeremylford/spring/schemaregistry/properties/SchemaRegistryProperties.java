@@ -284,7 +284,7 @@ public class SchemaRegistryProperties {
         /**
          * Zookeeper session timeout
          */
-        private int zookeeperSessionTimeout;
+        private int zookeeperSessionTimeout = 500;
 
         /**
          * The durable single partition topic that actsas the durable log for the data
@@ -304,7 +304,7 @@ public class SchemaRegistryProperties {
         /**
          * The timeout for initialization of the Kafka store, including creation of the Kafka topic that stores schema data.
          */
-        private Integer initTimeout;
+        private int initTimeout = 60000;
 
         public String getConnectionUrl() {
             return connectionUrl;
@@ -362,11 +362,11 @@ public class SchemaRegistryProperties {
             this.timeout = timeout;
         }
 
-        public Integer getInitTimeout() {
+        public int getInitTimeout() {
             return initTimeout;
         }
 
-        public void setInitTimeout(Integer initTimeout) {
+        public void setInitTimeout(int initTimeout) {
             this.initTimeout = initTimeout;
         }
 
@@ -377,7 +377,7 @@ public class SchemaRegistryProperties {
             putInteger(properties, SchemaRegistryConfig.KAFKASTORE_ZK_SESSION_TIMEOUT_MS_CONFIG, zookeeperSessionTimeout);
             putString(properties, SchemaRegistryConfig.KAFKASTORE_TOPIC_CONFIG, topic);
             putInteger(properties, SchemaRegistryConfig.KAFKASTORE_TOPIC_REPLICATION_FACTOR_CONFIG, topicReplicationFactor);
-            putInteger(properties, SchemaRegistryConfig.KAFKASTORE_INIT_TIMEOUT_CONFIG, topicReplicationFactor);
+            putInteger(properties, SchemaRegistryConfig.KAFKASTORE_INIT_TIMEOUT_CONFIG, initTimeout);
 
             return properties;
         }

@@ -25,6 +25,7 @@ import io.confluent.kafka.schemaregistry.storage.KafkaSchemaRegistry;
 import io.confluent.kafka.schemaregistry.storage.serialization.SchemaRegistrySerializer;
 import io.confluent.rest.RestConfigException;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -33,13 +34,17 @@ import org.springframework.context.annotation.Import;
 @Import(JerseyConfiguration.class)
 public class SchemaRegistryAutoConfiguration {
 
+    @Bean
     public SchemaRegistryConfig schemaRegistryConfig(SchemaRegistryProperties schemaRegistryProperties) throws RestConfigException {
         return new SchemaRegistryConfig(schemaRegistryProperties.asProperties());
     }
 
+    @Bean
     public KafkaSchemaRegistry kafkaSchemaRegistry(SchemaRegistryConfig schemaRegistryConfig) throws SchemaRegistryException {
-        return new KafkaSchemaRegistry(
+        KafkaSchemaRegistry kafkaSchemaRegistry = new KafkaSchemaRegistry(
                 schemaRegistryConfig, new SchemaRegistrySerializer()
         );
+        kafkaSchemaRegistry.init();
+        return kafkaSchemaRegistry;
     }
 }

@@ -1,8 +1,8 @@
 schemaregistry:
   kafkastore:
-    bootstrap-servers: localhost:9042
+    bootstrap-servers: localhost:9092
     connection-url: localhost:2181
 
-#spring:
-#  jersey:
-#    application-path: /proxy
+spring:
+  jersey:
+    application-path: /api
