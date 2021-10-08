@@ -1,8 +1,15 @@
 schemaregistry:
   kafkastore:
     bootstrap-servers: localhost:9092
+    #Enables zookeeper based master election
     connection-url: localhost:2181
 
 spring:
   jersey:
     application-path: /api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

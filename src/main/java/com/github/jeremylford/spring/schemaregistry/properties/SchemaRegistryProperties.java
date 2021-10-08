@@ -18,6 +18,7 @@
  */
 package com.github.jeremylford.spring.schemaregistry.properties;
 
+import io.confluent.kafka.schemaregistry.CompatibilityLevel;
 import io.confluent.kafka.schemaregistry.avro.AvroCompatibilityLevel;
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -41,7 +42,7 @@ public class SchemaRegistryProperties {
     /**
      * If true, this node can participate in master election. In a multi-colo setup, turn this off for clusters in the slave data center.
      */
-    private boolean masterEligibility = SchemaRegistryConfig.DEFAULT_MASTER_ELIGIBILITY;
+    private boolean leaderEligibility = SchemaRegistryConfig.DEFAULT_LEADER_ELIGIBILITY;
 
     /**
      * If true, this node will allow mode changes if it is the master.
@@ -61,7 +62,7 @@ public class SchemaRegistryProperties {
     /**
      * The Avro compatibility type. Valid values are: none (new schema can be any valid Avro schema), backward (new schema can read data produced by latest registered schema), forward (latest registered schema can read data produced by the new schema), full (new schema is backward and forward compatible with latest registered schema)
      */
-    private AvroCompatibilityLevel compatibilityLevel = AvroCompatibilityLevel.BACKWARD; //SchemaRegistryConfig.COMPATIBILITY_DEFAULT;
+    private CompatibilityLevel compatibilityLevel = CompatibilityLevel.BACKWARD; //SchemaRegistryConfig.COMPATIBILITY_DEFAULT;
 
     /**
      * Whether or not to set an ACL in ZooKeeper when znodes are created and ZooKeeper SASL authentication is configured. IMPORTANT: if set to `true`, the SASL principal must be the same as the Kafka brokers.
@@ -104,12 +105,12 @@ public class SchemaRegistryProperties {
         this.kafkaStore = kafkaStore;
     }
 
-    public boolean isMasterEligibility() {
-        return masterEligibility;
+    public boolean isLeaderEligibility() {
+        return leaderEligibility;
     }
 
-    public void setMasterEligibility(boolean masterEligibility) {
-        this.masterEligibility = masterEligibility;
+    public void setLeaderEligibility(boolean leaderEligibility) {
+        this.leaderEligibility = leaderEligibility;
     }
 
     public boolean isModeMutability() {
@@ -136,11 +137,11 @@ public class SchemaRegistryProperties {
         this.hostName = hostName;
     }
 
-    public AvroCompatibilityLevel getCompatibilityLevel() {
+    public CompatibilityLevel getCompatibilityLevel() {
         return compatibilityLevel;
     }
 
-    public void setCompatibilityLevel(AvroCompatibilityLevel compatibilityLevel) {
+    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
         this.compatibilityLevel = compatibilityLevel;
     }
 
@@ -188,7 +189,7 @@ public class SchemaRegistryProperties {
         Properties properties = new Properties();
 
         properties.putAll(kafkaStore.asProperties());
-        putBoolean(properties, SchemaRegistryConfig.MASTER_ELIGIBILITY, masterEligibility);
+        putBoolean(properties, SchemaRegistryConfig.MASTER_ELIGIBILITY, leaderEligibility);
         putBoolean(properties, SchemaRegistryConfig.MODE_MUTABILITY, modeMutability);
         putString(properties, SchemaRegistryConfig.SCHEMAREGISTRY_ZK_NAMESPACE, zookeeperNamespace);
         putString(properties, SchemaRegistryConfig.HOST_NAME_CONFIG, hostName);
@@ -387,6 +388,4 @@ public class SchemaRegistryProperties {
         protected static final String KAFKASTORE_WRITE_RETRY_BACKOFF_MS_DOC = "The amount of time in milliseconds to wait before attempting to retry a failed write to the Kafka store";
 
     }
-
-
 }
