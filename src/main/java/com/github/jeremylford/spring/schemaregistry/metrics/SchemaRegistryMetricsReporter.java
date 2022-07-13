@@ -22,12 +22,14 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.metrics.KafkaMetric;
+import org.apache.kafka.common.metrics.Measurable;
 import org.apache.kafka.common.metrics.MetricsContext;
 import org.apache.kafka.common.metrics.MetricsReporter;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 public class SchemaRegistryMetricsReporter implements MetricsReporter {
@@ -69,7 +71,13 @@ public class SchemaRegistryMetricsReporter implements MetricsReporter {
                 .map(x -> Tag.of(x.getKey(), x.getValue())).collect(Collectors.toList());
 
         Metrics.gauge(kafkaMetric.metricName().name(),
-                tags, kafkaMetric, KafkaMetric::value);
+                tags, kafkaMetric, value -> {
+                    Object result = value.metricValue();
+                    if (result instanceof Double) {
+                        return (Double)result;
+                    }
+                    return 0.0d;
+                });
     }
 
     @Override

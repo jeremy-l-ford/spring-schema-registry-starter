@@ -27,6 +27,7 @@ import com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper;
 import io.confluent.kafka.schemaregistry.exceptions.SchemaRegistryException;
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import io.confluent.kafka.schemaregistry.rest.extensions.SchemaRegistryResourceExtension;
+import io.confluent.kafka.schemaregistry.rest.filters.ContextFilter;
 import io.confluent.kafka.schemaregistry.rest.filters.RestCallMetricFilter;
 import io.confluent.kafka.schemaregistry.storage.KafkaSchemaRegistry;
 import io.confluent.rest.Application;
@@ -67,16 +68,19 @@ public class JerseyConfiguration extends ResourceConfig {
                                SchemaRegistryConfig schemaRegistryConfig) {
         register(new io.confluent.kafka.schemaregistry.rest.resources.CompatibilityResource(kafkaSchemaRegistry));
         register(new io.confluent.kafka.schemaregistry.rest.resources.ConfigResource(kafkaSchemaRegistry));
+        register(new io.confluent.kafka.schemaregistry.rest.resources.ContextsResource(kafkaSchemaRegistry));
         register(new io.confluent.kafka.schemaregistry.rest.resources.ModeResource(kafkaSchemaRegistry));
         register(new io.confluent.kafka.schemaregistry.rest.resources.RootResource());
         register(new io.confluent.kafka.schemaregistry.rest.resources.SchemasResource(kafkaSchemaRegistry));
-        register(new io.confluent.kafka.schemaregistry.rest.resources.ServerMetadataResource(kafkaSchemaRegistry, schemaRegistryConfig));
+        register(new io.confluent.kafka.schemaregistry.rest.resources.ServerMetadataResource(kafkaSchemaRegistry));
         register(new io.confluent.kafka.schemaregistry.rest.resources.SubjectsResource(kafkaSchemaRegistry));
         register(new io.confluent.kafka.schemaregistry.rest.resources.SubjectVersionsResource(kafkaSchemaRegistry));
 
         register(new ConstraintViolationExceptionMapper());
         register(new WebApplicationExceptionMapper(schemaRegistryConfig));
         register(new GenericExceptionMapper(schemaRegistryConfig));
+
+        register(new ContextFilter());
 
         register(new RestCallMetricFilter(
                 kafkaSchemaRegistry.getMetricsContainer().getApiCallsSuccess(),

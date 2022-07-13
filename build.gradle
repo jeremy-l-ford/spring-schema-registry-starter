@@ -1,8 +1,8 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.RELEASE'
+		springBootVersion = '2.4.0'
 		kafkaVersion = '2.8.0'
-		confluentVersion = '6.2.1'
+		confluentVersion = '7.2.0'
 	}
 	repositories {
 		mavenCentral()
