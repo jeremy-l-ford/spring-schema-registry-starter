@@ -20,10 +20,6 @@ package com.github.jeremylford.spring.schemaregistry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper;
-//import io.confluent.common.metrics.JmxReporter;
-//import io.confluent.common.metrics.MetricConfig;
-//import io.confluent.common.metrics.Metrics;
-//import io.confluent.common.metrics.MetricsReporter;
 import io.confluent.kafka.schemaregistry.exceptions.SchemaRegistryException;
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import io.confluent.kafka.schemaregistry.rest.extensions.SchemaRegistryResourceExtension;

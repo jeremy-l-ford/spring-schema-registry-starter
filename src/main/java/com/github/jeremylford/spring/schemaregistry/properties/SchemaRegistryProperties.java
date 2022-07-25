@@ -162,10 +162,10 @@ public class SchemaRegistryProperties {
         Properties properties = new Properties();
 
         properties.putAll(kafkaStore.asProperties());
-        putBoolean(properties, SchemaRegistryConfig.MASTER_ELIGIBILITY, leaderEligibility);
+        putBoolean(properties, SchemaRegistryConfig.LEADER_ELIGIBILITY, leaderEligibility);
         putBoolean(properties, SchemaRegistryConfig.MODE_MUTABILITY, modeMutability);
         putString(properties, SchemaRegistryConfig.HOST_NAME_CONFIG, hostName);
-        putString(properties, SchemaRegistryConfig.COMPATIBILITY_CONFIG, compatibilityLevel.name());
+        putString(properties, SchemaRegistryConfig.SCHEMA_COMPATIBILITY_CONFIG, compatibilityLevel.name());
         putArray(properties, SchemaRegistryConfig.RESOURCE_EXTENSION_CONFIG, resourceExtensions);
         putArray(properties, SchemaRegistryConfig.RESOURCE_STATIC_LOCATIONS_CONFIG, resourceStaticLocations);
         putString(properties, SchemaRegistryConfig.INTER_INSTANCE_PROTOCOL_CONFIG, innerInstanceProtocol);
