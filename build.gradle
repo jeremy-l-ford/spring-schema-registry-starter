@@ -1,8 +1,8 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.RELEASE'
-		kafkaVersion = '2.3.0'
-		confluentVersion = '5.3.0'
+		springBootVersion = '2.4.0'
+		kafkaVersion = '2.8.0'
+		confluentVersion = '7.2.0'
 	}
 	repositories {
 		mavenCentral()
@@ -41,6 +41,10 @@ repositories {
 	maven{
 		url "https://packages.confluent.io/maven"
 	}
+	maven {
+		url "https://repository.mulesoft.org/nexus/content/repositories/public/"
+	}
+//	maven { url "https://packages.confluent.io/maven/" }
 //	mavenLocal()
 }
 
@@ -48,6 +52,20 @@ configurations.all {
 	exclude group: "commongs-logging", module: "commongs-logging"
 	exclude group: "log4j"
 	exclude group: "org.slf4j", module: "slf4j-log4j12"
+	exclude group: "org.slf4j", module: "slf4j-reload4j"
+
+	exclude group: "org.eclipse.jetty.http2"
+	exclude group: "org.eclipse.jetty.websocket"
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+//			srcDir 'src/main/shaded-confluent-rest'
+//			srcDir 'src/main/shaded-eclipse-jetty'
+		}
+	}
 }
 
 //processResources {
@@ -62,24 +80,36 @@ dependencies {
 //	implementation('org.springframework.kafka:spring-kafka')
 //	implementation('org.springframework.cloud:spring-cloud-starter-config:2.0.1.RELEASE')
 
-	implementation group: 'org.apache.kafka', name: 'kafka_2.12', version: "${kafkaVersion}"
+	implementation group: 'org.apache.kafka', name: 'kafka_2.13', version: "${kafkaVersion}"
 	implementation group: 'org.apache.kafka', name: 'kafka-clients', version: "${kafkaVersion}"
 	compile group: 'io.micrometer', name: 'micrometer-core', version: '1.2.1'
 
-	implementation group: "io.confluent", name: "rest-utils", version: "${confluentVersion}"
+	compileOnly(group: "io.confluent", name: "rest-utils", version: "${confluentVersion}")
+
 	implementation group: "io.confluent", name: "kafka-schema-registry", version: "${confluentVersion}"
+	implementation group: "io.confluent", name: "common-metrics", version: "${confluentVersion}"
 //	implementation group: "io.confluent", name: "kafka-rest-common", version: "${confluentVersion}"
 //	implementation group: "io.confluent", name: "kafka-avro-serializer", version: "${confluentVersion}"
 	runtimeOnly group: "org.eclipse.jetty", name: "jetty-util", version: "9.4.19.v20190610"
 
+	compile group: 'io.micrometer', name: 'micrometer-core', version: '1.9.0'
 
 
-	optional("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
 	testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 //	testImplementation("org.springframework.kafka:spring-kafka-test:${springBootVersion}")
-	testImplementation("junit:junit:4.12")
 
-	testRuntimeOnly group: 'org.springframework', name: 'spring-webmvc', version: '5.0.0.RELEASE'
+	testRuntimeOnly group: 'org.springframework', name: 'spring-webmvc', version: '5.3.1'
+	testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.17.3'
+	testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
+	testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2'
+	testRuntimeOnly group: "io.confluent", name: "rest-utils", version: "${confluentVersion}"
+	testRuntimeOnly group: "org.eclipse.jetty", name: "jetty-util", version: "9.4.44.v20210927"
+
+
+
+//	implementation group: 'org.scala-lang', name: 'scala3-library_3', version: '3.0.2'
+//	implementation group: 'org.scala-lang', name: 'scala-library', version: '2.7.0'
 
 
 }
@@ -87,6 +117,15 @@ dependencies {
 task sourcesJar(type: Jar) {
 	from sourceSets.main.allJava
 //	archiveClassifier = 'sources'
+}
+
+tasks.withType(Test) {
+	testLogging {
+		exceptionFormat "full"
+		events "started", "skipped", "passed", "failed"
+		showStandardStreams true
+	}
+	useJUnitPlatform()
 }
 
 task javadocJar(type: Jar) {

@@ -18,16 +18,21 @@
  */
 package com.github.jeremylford.spring.schemaregistry;
 
+import com.github.jeremylford.spring.schemaregistry.metrics.SchemaRegistryMetricsReporter;
 import com.github.jeremylford.spring.schemaregistry.properties.SchemaRegistryProperties;
 import io.confluent.kafka.schemaregistry.exceptions.SchemaRegistryException;
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import io.confluent.kafka.schemaregistry.storage.KafkaSchemaRegistry;
 import io.confluent.kafka.schemaregistry.storage.serialization.SchemaRegistrySerializer;
 import io.confluent.rest.RestConfigException;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import java.util.Collections;
+import java.util.Properties;
 
 @EnableConfigurationProperties({SchemaRegistryProperties.class})
 @Configuration
@@ -36,7 +41,12 @@ public class SchemaRegistryAutoConfiguration {
 
     @Bean
     public SchemaRegistryConfig schemaRegistryConfig(SchemaRegistryProperties schemaRegistryProperties) throws RestConfigException {
-        return new SchemaRegistryConfig(schemaRegistryProperties.asProperties());
+        Properties properties = schemaRegistryProperties.asProperties();
+
+        properties.put(ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG, Collections.singletonList(
+                SchemaRegistryMetricsReporter.class.getName()
+        ));
+        return new SchemaRegistryConfig(properties);
     }
 
     @Bean
@@ -44,7 +54,7 @@ public class SchemaRegistryAutoConfiguration {
         KafkaSchemaRegistry kafkaSchemaRegistry = new KafkaSchemaRegistry(
                 schemaRegistryConfig, new SchemaRegistrySerializer()
         );
-        kafkaSchemaRegistry.init();
+        kafkaSchemaRegistry.init(); //TODO: consider life cycle wrapper
         return kafkaSchemaRegistry;
     }
 }

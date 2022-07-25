@@ -18,7 +18,7 @@
  */
 package com.github.jeremylford.spring.schemaregistry.properties;
 
-import io.confluent.kafka.schemaregistry.avro.AvroCompatibilityLevel;
+import io.confluent.kafka.schemaregistry.CompatibilityLevel;
 import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -41,17 +41,12 @@ public class SchemaRegistryProperties {
     /**
      * If true, this node can participate in master election. In a multi-colo setup, turn this off for clusters in the slave data center.
      */
-    private boolean masterEligibility = SchemaRegistryConfig.DEFAULT_MASTER_ELIGIBILITY;
+    private boolean leaderEligibility = SchemaRegistryConfig.DEFAULT_LEADER_ELIGIBILITY;
 
     /**
      * If true, this node will allow mode changes if it is the master.
      */
     private boolean modeMutability = SchemaRegistryConfig.DEFAULT_MODE_MUTABILITY;
-
-    /**
-     * The string that is used as the zookeeper namespace for storing schema registry metadata. SchemaRegistry instances which are part of the same schema registry service should have the same ZooKeeper namespace.
-     */
-    private String zookeeperNamespace = SchemaRegistryConfig.DEFAULT_SCHEMAREGISTRY_ZK_NAMESPACE;
 
     /**
      * The host name advertised in Zookeeper. Make sure to set this if running SchemaRegistry with multiple nodes.
@@ -61,12 +56,7 @@ public class SchemaRegistryProperties {
     /**
      * The Avro compatibility type. Valid values are: none (new schema can be any valid Avro schema), backward (new schema can read data produced by latest registered schema), forward (latest registered schema can read data produced by the new schema), full (new schema is backward and forward compatible with latest registered schema)
      */
-    private AvroCompatibilityLevel compatibilityLevel = AvroCompatibilityLevel.BACKWARD; //SchemaRegistryConfig.COMPATIBILITY_DEFAULT;
-
-    /**
-     * Whether or not to set an ACL in ZooKeeper when znodes are created and ZooKeeper SASL authentication is configured. IMPORTANT: if set to `true`, the SASL principal must be the same as the Kafka brokers.
-     */
-    private boolean zookeeperSetAcl = false; //SchemaRegistryConfig.ZOOKEEPER_SET_ACL_DEFAULT
+    private CompatibilityLevel compatibilityLevel = CompatibilityLevel.BACKWARD; //SchemaRegistryConfig.COMPATIBILITY_DEFAULT;
 
     /**
      * A list of classes to use as SchemaRegistryResourceExtension. Implementing the interface  <code>SchemaRegistryResourceExtension</code> allows you to inject user defined resources  like filters to Schema Registry. Typically used to add custom capability like logging,  security, etc. The schema.registry.resource.extension.class name is deprecated; prefer using resource.extension.class instead.
@@ -104,12 +94,12 @@ public class SchemaRegistryProperties {
         this.kafkaStore = kafkaStore;
     }
 
-    public boolean isMasterEligibility() {
-        return masterEligibility;
+    public boolean isLeaderEligibility() {
+        return leaderEligibility;
     }
 
-    public void setMasterEligibility(boolean masterEligibility) {
-        this.masterEligibility = masterEligibility;
+    public void setLeaderEligibility(boolean leaderEligibility) {
+        this.leaderEligibility = leaderEligibility;
     }
 
     public boolean isModeMutability() {
@@ -120,14 +110,6 @@ public class SchemaRegistryProperties {
         this.modeMutability = modeMutability;
     }
 
-    public String getZookeeperNamespace() {
-        return zookeeperNamespace;
-    }
-
-    public void setZookeeperNamespace(String zookeeperNamespace) {
-        this.zookeeperNamespace = zookeeperNamespace;
-    }
-
     public String getHostName() {
         return hostName;
     }
@@ -136,20 +118,12 @@ public class SchemaRegistryProperties {
         this.hostName = hostName;
     }
 
-    public AvroCompatibilityLevel getCompatibilityLevel() {
+    public CompatibilityLevel getCompatibilityLevel() {
         return compatibilityLevel;
     }
 
-    public void setCompatibilityLevel(AvroCompatibilityLevel compatibilityLevel) {
+    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
         this.compatibilityLevel = compatibilityLevel;
-    }
-
-    public boolean isZookeeperSetAcl() {
-        return zookeeperSetAcl;
-    }
-
-    public void setZookeeperSetAcl(boolean zookeeperSetAcl) {
-        this.zookeeperSetAcl = zookeeperSetAcl;
     }
 
     public String[] getResourceExtensions() {
@@ -188,12 +162,10 @@ public class SchemaRegistryProperties {
         Properties properties = new Properties();
 
         properties.putAll(kafkaStore.asProperties());
-        putBoolean(properties, SchemaRegistryConfig.MASTER_ELIGIBILITY, masterEligibility);
+        putBoolean(properties, SchemaRegistryConfig.LEADER_ELIGIBILITY, leaderEligibility);
         putBoolean(properties, SchemaRegistryConfig.MODE_MUTABILITY, modeMutability);
-        putString(properties, SchemaRegistryConfig.SCHEMAREGISTRY_ZK_NAMESPACE, zookeeperNamespace);
         putString(properties, SchemaRegistryConfig.HOST_NAME_CONFIG, hostName);
-        putString(properties, SchemaRegistryConfig.COMPATIBILITY_CONFIG, compatibilityLevel.name());
-        putBoolean(properties, SchemaRegistryConfig.ZOOKEEPER_SET_ACL_CONFIG, zookeeperSetAcl);
+        putString(properties, SchemaRegistryConfig.SCHEMA_COMPATIBILITY_CONFIG, compatibilityLevel.name());
         putArray(properties, SchemaRegistryConfig.RESOURCE_EXTENSION_CONFIG, resourceExtensions);
         putArray(properties, SchemaRegistryConfig.RESOURCE_STATIC_LOCATIONS_CONFIG, resourceStaticLocations);
         putString(properties, SchemaRegistryConfig.INTER_INSTANCE_PROTOCOL_CONFIG, innerInstanceProtocol);
@@ -282,11 +254,6 @@ public class SchemaRegistryProperties {
         private String groupId;
 
         /**
-         * Zookeeper session timeout
-         */
-        private int zookeeperSessionTimeoutMillis = 30000;
-
-        /**
          * The durable single partition topic that actsas the durable log for the data
          */
         private String topic = SchemaRegistryConfig.DEFAULT_KAFKASTORE_TOPIC;
@@ -330,14 +297,6 @@ public class SchemaRegistryProperties {
             this.groupId = groupId;
         }
 
-        public int getZookeeperSessionTimeoutMillis() {
-            return zookeeperSessionTimeoutMillis;
-        }
-
-        public void setZookeeperSessionTimeoutMillis(int zookeeperSessionTimeoutMillis) {
-            this.zookeeperSessionTimeoutMillis = zookeeperSessionTimeoutMillis;
-        }
-
         public String getTopic() {
             return topic;
         }
@@ -374,7 +333,6 @@ public class SchemaRegistryProperties {
             Properties properties = new Properties();
             putString(properties, SchemaRegistryConfig.KAFKASTORE_CONNECTION_URL_CONFIG, connectionUrl);
             putArray(properties, SchemaRegistryConfig.KAFKASTORE_BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-            putInteger(properties, SchemaRegistryConfig.KAFKASTORE_ZK_SESSION_TIMEOUT_MS_CONFIG, zookeeperSessionTimeoutMillis);
             putString(properties, SchemaRegistryConfig.KAFKASTORE_TOPIC_CONFIG, topic);
             putInteger(properties, SchemaRegistryConfig.KAFKASTORE_TOPIC_REPLICATION_FACTOR_CONFIG, topicReplicationFactor);
             putInteger(properties, SchemaRegistryConfig.KAFKASTORE_INIT_TIMEOUT_CONFIG, initTimeout);
@@ -387,6 +345,4 @@ public class SchemaRegistryProperties {
         protected static final String KAFKASTORE_WRITE_RETRY_BACKOFF_MS_DOC = "The amount of time in milliseconds to wait before attempting to retry a failed write to the Kafka store";
 
     }
-
-
 }
